@@ -30,7 +30,7 @@ var execCmd = &cobra.Command{
 		// command variables will have 2 types
 		// <key=A>, <key> -> launch prompt with default value if set.
 		// <key=A|B|C> -> launch select prompt with choices of A, B and C.
-		r, _ := regexp.Compile(`<(\S.+?\S)>`)
+		r, _ := regexp.Compile(`<(.+?)>`)
 
 		// this will break up into 2 maps
 		// e.g.
@@ -66,22 +66,31 @@ var execCmd = &cobra.Command{
 				prompt := promptui.Prompt{
 					Label: fmt.Sprintf("Variable for %v", variable.Key),
 				}
-				result, _ := prompt.Run()
-				command = strings.Replace(command, variable.Key, result, 1)
+				if result, err := prompt.Run(); err != nil {
+					cobra.CheckErr(err)
+				} else {
+					command = strings.Replace(command, variable.Key, result, 1)
+				}
 			} else if len(variable.Choices) == 1 {
 				prompt := promptui.Prompt{
 					Label:   fmt.Sprintf("Variable for %v", variable.Key),
 					Default: variable.Choices[0],
 				}
-				result, _ := prompt.Run()
-				command = strings.Replace(command, variable.Key, result, 1)
+				if result, err := prompt.Run(); err != nil {
+					cobra.CheckErr(err)
+				} else {
+					command = strings.Replace(command, variable.Key, result, 1)
+				}
 			} else {
 				prompt := promptui.Select{
 					Label: fmt.Sprintf("Variable for %v", variable.Key),
 					Items: variable.Choices,
 				}
-				_, result, _ := prompt.Run()
-				command = strings.Replace(command, variable.Key, result, 1)
+				if _, result, err := prompt.Run(); err != nil {
+					cobra.CheckErr(err)
+				} else {
+					command = strings.Replace(command, variable.Key, result, 1)
+				}
 			}
 		}
 
