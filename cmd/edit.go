@@ -13,6 +13,9 @@ var editCmd = &cobra.Command{
 	Long:  "Edit commands with selected editor.",
 	Run: func(cmd *cobra.Command, args []string) {
 		filename := support.FilePathForCommands()
+		if _, err := os.Stat(filename); err != nil {
+			cobra.CheckErr(err)
+		}
 		command := viper.GetString("editor") + " " + filename
 		support.Run(command, os.Stdin, os.Stdout)
 	},

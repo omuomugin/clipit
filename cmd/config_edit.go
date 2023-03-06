@@ -13,6 +13,9 @@ var configEditCmd = &cobra.Command{
 	Long:  "Edit configuration with selected editor.",
 	Run: func(cmd *cobra.Command, args []string) {
 		filename := support.FilePathForConfigs()
+		if _, err := os.Stat(filename); err != nil {
+			cobra.CheckErr(err)
+		}
 		command := viper.GetString("editor") + " " + filename
 		support.Run(command, os.Stdin, os.Stdout)
 	},
